@@ -2,11 +2,9 @@ import React, { useReducer, useEffect } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
-import { SportsBasketball } from '@material-ui/icons';
+
 
 export default function TokenMapForm() {
     function reducer(state, action){
@@ -34,7 +32,7 @@ export default function TokenMapForm() {
                 for(var i=0;i<state.TokenList.length;i++){
                     var keys = Object.keys(state.TokenList[i])
                     for(var x=0;x<keys.length;x++){
-                        if(keys[x] == cField){                            
+                        if(keys[x] === cField){                            
                             indexi = i;
                             indexx = x; 
                         }
@@ -43,6 +41,9 @@ export default function TokenMapForm() {
                 var newTokenList = state.TokenList
                 newTokenList[indexi][indexx] = cValue
                 return {...state, TokenList: newTokenList}
+            
+            default:
+                return state
 
 
         }
