@@ -2,10 +2,13 @@
   "dependencies": {
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
+    "@unlock-protocol/paywall": "^0.0.5",
+    "@unlock-protocol/unlock-js": "^0.16.3",
     "aws-amplify": "^3.3.27",
     "client-oauth2": "^4.3.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.0.1"
   },
   "scripts": {

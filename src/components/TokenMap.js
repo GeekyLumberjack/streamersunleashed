@@ -4,9 +4,10 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
+import API from '@aws-amplify/api';
 
 
-export default function TokenMapForm() {
+export default function TokenMapForm(props) {
     function reducer(state, action){
         switch(action.type){
             case "initialLoad":
@@ -38,10 +39,14 @@ export default function TokenMapForm() {
                         }
                     }
                 }
-                var newTokenList = state.TokenList
-                newTokenList[indexi][indexx] = cValue
+                var newTokenList = state.TokenList;
+                newTokenList[indexi][cField] = cValue;
                 return {...state, TokenList: newTokenList}
             
+            case "saveTokenMap":
+                
+                return {...state, TokenList:action.action}
+
             default:
                 return state
 
@@ -50,12 +55,27 @@ export default function TokenMapForm() {
     }
 
     useEffect( () => {})
+    if(props.props.tokenMap){
+        var TokenList = props.props.tokenMap;
+    }
+    else{
+        var TokenList = [{address0:"",action0:""}];
+    }
+    
+    const [state, dispatch] = useReducer(reducer, {TokenList});
 
-    const [state, dispatch] = useReducer(reducer, {TokenList:[{address0:"",action0:""}]});
+    async function saveTokenMap(e){
+        const results = await API.post("streamlabs","/tokenMap",{body: {walletAddress:props.props.walletAddress, tokenMap:e}})
+        //dispatch({type:"saveTokenMap",action:results.Items})
+    };
 
-    const addToken = (e) => dispatch({type:"addToken"})
+    
+
+    const addToken = (e) => dispatch({type:"addToken"});
+    
     const fieldChange = (e) => dispatch({type: "changeTokenValue", action: {field: e.target.name, value:  e.target.value}})
     function RenderTokenList(TokenList){
+        console.log(TokenList)
         return( 
         <div>
             {TokenList.map((token) => (
@@ -63,14 +83,15 @@ export default function TokenMapForm() {
                 <Grid item xs={6} md={6}>
                 <TextField
                     required
-                    name = {Object.keys(token)[0]}
+                    name = {Object.keys(token)[1]}
                     label="Lock Address"
+                    value = {Object.values(token)[1]}
                     fullWidth
                     onChange={fieldChange}
                 />
                 </Grid>
                 <Grid item xs={6} md={6}>
-                <TextField name={Object.keys(token)[1]} label="Action" onChange={fieldChange} fullWidth select>
+                <TextField name={Object.keys(token)[0]} label="Action" value={Object.values(token)[0]} onChange={fieldChange} fullWidth select>
                 <MenuItem value="donation">Donation</MenuItem>
                 <MenuItem value="superchat">Superchat</MenuItem>
                 </TextField>
@@ -82,12 +103,13 @@ export default function TokenMapForm() {
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
-        Payment method
+        Token Map
       </Typography>
       
             {RenderTokenList(state.TokenList)}
         <Grid>
             <Button onClick={addToken} variant="contained" color="primary" style={{ 'margin-top': 20 }}>Add Token</Button>
+            <Button onClick={() => saveTokenMap(state.TokenList)} variant="contained" color="primary" style={{ 'margin-left': 20, 'margin-top': 20 }}>Save Token Map</Button>
         </Grid>
       
     </React.Fragment>

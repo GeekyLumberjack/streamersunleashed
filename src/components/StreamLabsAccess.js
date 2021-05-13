@@ -16,7 +16,8 @@ var streamlabs = new ClientOAuth2({
 var uri = streamlabs.code.getUri();
 
 
-export default function AccessForm() {
+export default function AccessForm(props) {
+const [hasCode, setHasCode] = React.useState(false);
 
 useEffect(() => {
   async function onLoad() {
@@ -24,8 +25,12 @@ useEffect(() => {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         if(urlParams.has('code')){
-          API.post('streamlabs','/streamlabsAccess',{body:{code:urlParams.get("code")}})
-        }  
+          const code = await API.post('streamlabs','/streamlabsAccess',{body:{code:urlParams.get("code"),walletAddress:props.props.walletAddress}})
+          setHasCode(code.code)
+        } 
+        else{
+          setHasCode(props.props.code)
+        }
       } catch (e) {
         alert(e.message); 
       }
@@ -45,7 +50,10 @@ useEffect(() => {
         </Typography>
       </Grid>
       <Grid spacing={2}>
+        {hasCode === true ? 
+        "YES" :
         <Button variant="contained" color="primary" style={{ 'margin-top': 20 }} onClick={()=> window.location.href = uri}>Authorize</Button>
+         }
       </Grid>
     </React.Fragment>
   );

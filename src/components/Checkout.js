@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, } from 'react';
+import { Route, Switch } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -68,33 +69,37 @@ const useStyles = makeStyles((theme) => ({
 
 const steps = ['Authorize Streamlabs', 'Setup Token Actions', 'Finished!'];
 
-function getStepContent(step) {
+function getStepContent(step, walletAddress, code, tokenMap) {
   switch (step) {
     case 0:
-      return <AccessForm />;
+      return <AccessForm props={{walletAddress:walletAddress, code:code}}/>;
     case 1:
-      return <TokenMapForm />;
+      return <TokenMapForm props={{walletAddress: walletAddress, tokenMap: tokenMap}} />;
     case 2:
-      return <CustomizeUrl />;
+      return <CustomizeUrl props={{walletAddress: walletAddress}} />;
     default:
       throw new Error('Unknown step');
   }
 }
 
 export default function Checkout(props) {
-
+  const [code, setCode] = React.useState(false);
+  const [tokenMap, setTokenMap] = React.useState();
+  async function onLoad() {
+    try {
+      if(props){
+        const response = await API.post('streamlabs','/profile',{body:{walletAddress: props.props}});
+        setCode(response.code)
+        setTokenMap(response.hasCode.Item.tokenMap)
+      }  
+    } catch (e) {
+      alert(e.message); 
+    }
+  }
   useEffect(() => {
-    async function onLoad() {
-        try {
-          if(props){
-            API.post('streamlabs','/profile',{body:{walletAddress: props}})
-          }  
-        } catch (e) {
-          alert(e.message); 
-        }
-      }
+    
       onLoad();
-    });
+    }, [props.props]);
 
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
@@ -110,13 +115,7 @@ export default function Checkout(props) {
   return (
     <React.Fragment>
       <CssBaseline />
-      <AppBar position="absolute" color="default" className={classes.appBar}>
-        <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap>
-            Company name
-          </Typography>
-        </Toolbar>
-      </AppBar>
+      
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
@@ -142,21 +141,24 @@ export default function Checkout(props) {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {getStepContent(activeStep)}
+                {getStepContent(activeStep, props.props, code, tokenMap)}
                 <div className={classes.buttons}>
                   {activeStep !== 0 && (
                     <Button onClick={handleBack} className={classes.button}>
                       Back
                     </Button>
                   )}
+                  {activeStep === steps.length - 1 ?
+                  <div/> :
                   <Button
                     variant="contained"
                     color="primary"
                     onClick={handleNext}
                     className={classes.button}
                   >
-                    {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
+                  Next
                   </Button>
+                  }
                 </div>
               </React.Fragment>
             )}
