@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 function App(){
-
     return(
     
     <AppBar position="absolute" color="default" className={{position: 'relative',}}>
