@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react"
 import Checkout from "./Checkout"
-import { Paywall } from '@unlock-protocol/paywall';
 import { Check } from "@material-ui/icons";
 import { Button, TextField } from '@material-ui/core';
 import {API} from 'aws-amplify'
