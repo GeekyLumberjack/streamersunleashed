@@ -24,7 +24,7 @@ export default function Donate(){
        noWallet: 'This is the message shown when the user does not have a crypto wallet which is required...',
        }
    };
-   paywallConfig['locks']['0xE7575764442aD64F14a209753169617030915227'] = {
+   paywallConfig['locks']['0x72710B5D938c79061DBf537013D715A9fD286d49'] = {
     name: "One time contribution!"
   }
    const changeNameField = (e) => {setName(e.target.value)}
@@ -34,7 +34,7 @@ export default function Donate(){
      '/donate',
      {body:{
        name: name,
-       walletAddress:address,
+       walletAddress:walletAddress,
        amount:1,
        currency:'USD',
        
@@ -83,15 +83,7 @@ export default function Donate(){
       return (
         <div className="App">
           <header className="App-header">
-          {locked === "locked"  && (
-              <div onClick={donate} style={{ cursor: "pointer" }}>
-                Unlock me!{" "}
-                <span aria-label="locked" role="img">
-                  🔒
-                </span>
-              </div>
-            )}
-            {locked === "unlocked" && address !== 'pending' && (
+        
               <div>
                   <TextField name="name" label="Name to show" value={name} onChange={changeNameField} fullWidth/>
                   <Button variant="contained" color="primary" style={{ 'margin-top': 20 }} onClick={send}>Donate</Button>

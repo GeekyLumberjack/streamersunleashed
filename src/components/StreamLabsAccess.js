@@ -9,7 +9,8 @@ import {API} from 'aws-amplify'
 var streamlabs = new ClientOAuth2({
   clientId: 'OTgPYBs7dsnSJN6yph3HlYDpjCyEx4q5lXyLskds',
   authorizationUri: 'https://streamlabs.com/api/v1.0/authorize',
-  redirectUri: 'https://streamersunleashed.com' // required
+  redirectUri: 'https://streamersunleashed.com',
+  scopes: 'donations.create,alerts.create'
   
 });
 
