@@ -11,7 +11,7 @@ function Copyright() {
       <Typography variant="body2" color="textSecondary" align="center">
         {'Copyright © '}
         <Link color="inherit" href="https://material-ui.com/">
-          streamersunleased.com
+          streamersunleashed.com
         </Link>{' '}
         {new Date().getFullYear()}
         {'.'}
@@ -26,7 +26,7 @@ function App(){
     <AppBar position="absolute" color="default" className={{position: 'relative',}}>
             <Toolbar>
             <Typography variant="h6" color="inherit" noWrap>
-                Streamers Unleased
+                Streamers Unleashed
             </Typography>
             </Toolbar>
             <Routes/>
