@@ -33,7 +33,7 @@ export default function CustomizeUrl(props) {
             setCustomUrl("https://streamersunleashed.com/donate/"+walletAddress.address)
           
         } catch (e) {
-          alert(e.message); 
+          console.log(e.message); 
         }
       }
       onLoad();

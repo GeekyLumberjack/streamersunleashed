@@ -77,7 +77,7 @@ export default function Checkout(props) {
         setTokenMap(response.hasCode.Item.tokenMap)
       }  
     } catch (e) {
-      alert(e.message); 
+      console.log(e.message); 
     }
   }
   useEffect(() => {

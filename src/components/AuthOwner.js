@@ -1,5 +1,10 @@
 import React, {useCallback, useEffect, useState} from "react"
 import Checkout from "./Checkout"
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import { makeStyles } from '@material-ui/core/styles';
+
+import { Button, TextField } from '@material-ui/core';
 
 export default function AuthOwner(){
    const [locked, setLocked] = useState('pending');
@@ -8,7 +13,7 @@ export default function AuthOwner(){
    var paywallConfig = {
     network: "100", 
     locks: {
-    '0xE7575764442aD64F14a209753169617030915227': {
+    '0xac1fceC2e4064CCd83ac8C9B0c9B8d944AB0D246': {
         name: "One time contribution!"
     }
 
@@ -22,6 +27,29 @@ export default function AuthOwner(){
     noWallet: 'This is the message shown when the user does not have a crypto wallet which is required...',
     }
 };
+
+const useStyles = makeStyles((theme) => ({
+  layout: {
+    width: 'auto',
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
+      width: 600,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
+    padding: theme.spacing(2),
+    [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
+      marginTop: theme.spacing(6),
+      marginBottom: theme.spacing(6),
+      padding: theme.spacing(3),
+    }
+  }
+}));
+const classes = useStyles();
+
    const unlockHandler = useCallback(e => {
                 console.log(e)
                 setLocked(e.detail.state)
@@ -68,21 +96,25 @@ export default function AuthOwner(){
         
       return (
         <div className="App">
-          <header className="App-header">
-            {locked === "locked"  && (
-              <div onClick={checkout} style={{ cursor: "pointer" }}>
-                Unlock me!{" "}
-                <span aria-label="locked" role="img">
-                  🔒
-                </span>
-              </div>
+        {locked === "locked"  && (
+          <Paper className={classes.layout}>
+              <Grid>     
+                <Button variant="contained" color="primary" onClick={checkout} style={{ cursor: "pointer" }}>
+                  Unlock Streamers Unleashed{" "}
+                  <span aria-label="locked" role="img">
+                    🔒
+                  </span>
+                </Button>  
+              </Grid>
+          </Paper>
+            
             )}
             {locked === "unlocked" && address !== 'pending' && (
               <div>
                   <Checkout props={ address }/>
               </div>
             )}
-          </header>
+          
         </div>
       )
     }

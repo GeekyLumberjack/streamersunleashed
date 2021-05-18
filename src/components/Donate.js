@@ -111,7 +111,7 @@ export default function Donate(){
           {Object.values(token)[0] === "donation" ?
           <div>
             <TextField name="name" label="Name to show" value={name} onChange={changeNameField} fullWidth/>
-            <Button color="primary" lock={Object.values(token)[1]} onClick={donate} style={{marginTop:5}}>Donate {Object.values(token)[2]}</Button>
+            <Button variant="contained" color="primary" lock={Object.values(token)[1]} onClick={donate} style={{marginTop:5}}>Donate {Object.values(token)[2]}</Button>
           </div>  :
           Object.values(token)[0] === "superchat" ? 
               <div>
