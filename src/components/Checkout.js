@@ -1,9 +1,6 @@
 import React, { useEffect, } from 'react';
-import { Route, Switch } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Paper from '@material-ui/core/Paper';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -16,19 +13,6 @@ import TokenMapForm from './TokenMap';
 import CustomizeUrl from './CustomizeUrl';
 import {API} from 'aws-amplify'
 
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -128,43 +112,31 @@ export default function Checkout(props) {
               </Step>
             ))}
           </Stepper>
-          <React.Fragment>
-            {activeStep === steps.length ? (
-              <React.Fragment>
-                <Typography variant="h5" gutterBottom>
-                  Thank you for your order.
-                </Typography>
-                <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order confirmation, and will
-                  send you an update when your order has shipped.
-                </Typography>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                {getStepContent(activeStep, props.props, code, tokenMap)}
-                <div className={classes.buttons}>
-                  {activeStep !== 0 && (
-                    <Button onClick={handleBack} className={classes.button}>
-                      Back
-                    </Button>
-                  )}
-                  {activeStep === steps.length - 1 ?
-                  <div/> :
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}
-                    className={classes.button}
-                  >
-                  Next
+            
+            <React.Fragment>
+              {getStepContent(activeStep, props.props, code, tokenMap)}
+              <div className={classes.buttons}>
+                {activeStep !== 0 && (
+                  <Button onClick={handleBack} className={classes.button}>
+                    Back
                   </Button>
-                  }
-                </div>
-              </React.Fragment>
-            )}
-          </React.Fragment>
+                )}
+                {activeStep === steps.length - 1 ?
+                <div/> :
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleNext}
+                  className={classes.button}
+                >
+                Next
+                </Button>
+                }
+              </div>
+            </React.Fragment>
+          
         </Paper>
-        <Copyright />
+        
       </main>
     </React.Fragment>
   );

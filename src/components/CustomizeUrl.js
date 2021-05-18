@@ -30,7 +30,7 @@ export default function CustomizeUrl(props) {
           
             //const response = await API.post('streamlabs','/profile',{body:{walletAddress: props}});
             const walletAddress = JSON.parse(props.props.walletAddress)
-            setCustomUrl("https://streamersunleashed.com/"+walletAddress.address)
+            setCustomUrl("https://streamersunleashed.com/donate/"+walletAddress.address)
           
         } catch (e) {
           alert(e.message); 
@@ -45,7 +45,7 @@ export default function CustomizeUrl(props) {
         Your Custom URL 
       </Typography>
           <ListItem className={classes.listItem} key={'url'}>
-            <ListItemText primary={customUrl} />
+            <ListItemText style={{ wordWrap: 'break-word' }} primary={customUrl} />
           </ListItem>
     </React.Fragment>
   );
