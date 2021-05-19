@@ -25,7 +25,8 @@ export default function AuthOwner(){
     pending: 'This is the message shown when the user sent a transaction to purchase a key which has not be confirmed yet',
     confirmed: 'This is the message shown when the user has a confirmed key',
     noWallet: 'This is the message shown when the user does not have a crypto wallet which is required...',
-    }
+    },
+    referrer: "0x6115BB18b17CFC53A8f73202D98221A89501b154"
 };
 
 const useStyles = makeStyles((theme) => ({
