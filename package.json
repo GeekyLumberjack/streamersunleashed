@@ -1,11 +1,14 @@
 {
   "dependencies": {
+    "@ethersproject/providers": "^5.1.2",
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
-    "@unlock-protocol/paywall": "^0.0.5",
+    "@unlock-protocol/paywall": "^0.1.0",
     "@unlock-protocol/unlock-js": "^0.17.0",
     "aws-amplify": "^3.3.27",
     "client-oauth2": "^4.3.3",
+    "i": "^0.3.6",
+    "npm": "^7.13.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.2.0",

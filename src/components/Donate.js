@@ -1,22 +1,22 @@
 import React, {useCallback, useEffect, useState} from "react"
 import Checkout from "./Checkout"
-import { Check } from "@material-ui/icons";
+import { Check, PinDropSharp } from "@material-ui/icons";
 import Grid from '@material-ui/core/Grid';
 import { Button, TextField } from '@material-ui/core';
 import {API} from 'aws-amplify'
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import {Web3Service} from '@unlock-protocol/unlock-js';
+import Typography from '@material-ui/core/Typography';
 
-export default function Donate(){
+export default function Donate(props){
+   console.log(props)
    const [locked, setLocked] = useState('pending');
    const [address, setAddress] = useState('pending');
    const [name, setName] = useState();
    const [message, setMessage] = useState();
    const [tokenMap, setTokenMap] = useState([]);
-   var web3 = new Web3Service({100:{
-     provider:"https://rpc.xdaichain.com/"
-   }});
+   const [price, setPrice] =useState();
+  
    const useStyles = makeStyles((theme) => ({
     layout: {
       width: 'auto',
@@ -41,7 +41,7 @@ export default function Donate(){
 
 
    const urlParams = new URL(window.location);
-   const walletAddress = urlParams.pathname.split("/")[2]
+   const lockAddress = urlParams.pathname.split("/")[2]
    var paywallConfig = {
        network: "100", 
        locks: {
@@ -55,7 +55,7 @@ export default function Donate(){
        noWallet: 'This is the message shown when the user does not have a crypto wallet which is required...',
        }
    };
-   paywallConfig['locks']['0x72710B5D938c79061DBf537013D715A9fD286d49'] = {
+   paywallConfig['locks'][lockAddress] = {
     name: "One time contribution!"
   }
    const changeNameField = (e) => {setName(e.target.value)}
@@ -65,26 +65,14 @@ export default function Donate(){
      '/donate',
      {body:{
        name: name,
-       walletAddress:walletAddress,
-       amount:1,
+       message:message,
+       walletAddress:props.location.state.walletAddress,
+       amount:props.location.state.price,
        currency:'USD',
        
      }})}
 
-    async function getTokenMap(){  
-    const getTokens = await API.get(
-    'streamlabs',
-    '/getTokenMap?walletAddress='+walletAddress,
-    )
-    const map =getTokens.Response.Item.tokenMap
-    for(var i=0; i<map.length; i++){
-      var getLockPrice = await web3.getLock(Object.values(map[i])[1],100);
-      map[i]['price'] = getLockPrice.keyPrice;
-    }
-    
-    setTokenMap(map);
-  }
-
+  
    console.log("on donate")
    const unlockHandler = useCallback(e => {
                 console.log(e)
@@ -95,41 +83,17 @@ export default function Donate(){
     /**
      * Invoked to show the checkout modal provided by Unlock (optional... but convenient!)
      */
-    const donate = useCallback(e => {
-        console.log(e)
-        paywallConfig['locks'][e.lock] = {
+    function donate(lock)  {
+        console.log(lock)
+        paywallConfig['locks'][lock] = {
           name: "One time contribution!"
         }
         window.unlockProtocol && window.unlockProtocol.loadCheckoutModal()
-
-    });
-
-    function renderTokenList(tokenList){
-      return(
-      tokenList.map((token) => (
-        <Grid container justify="center">
-          {Object.values(token)[0] === "donation" ?
-          <div>
-            <TextField name="name" label="Name to show" value={name} onChange={changeNameField} fullWidth/>
-            <Button variant="contained" color="primary" lock={Object.values(token)[1]} onClick={donate} style={{marginTop:5}}>Donate {Object.values(token)[2]}</Button>
-          </div>  :
-          Object.values(token)[0] === "superchat" ? 
-              <div>
-                <TextField name="name" label="Your Username" value={name} onChange={changeNameField} fullWidth/>
-                <TextField name="message" label="Message" value={message} onChange={changeMessageField} fullWidth/>
-                <Button variant="contained" color="primary" lock={Object.values(token)[1]} onClick={donate} style={{marginTop:5}}>Donate {Object.values(token)[2]}</Button>
-              </div>
-              :
-              <div/>}
-        </Grid>
-      ))
-      )
-    }
+    };
 
 
     useEffect(() => {
-      const tokenList = getTokenMap()
-      
+      console.log(props)
       const existingScript = document.getElementById('unlock-protocol')
 
       if (!existingScript) {
@@ -148,6 +112,7 @@ export default function Donate(){
       window.unlockProtocolConfig = paywallConfig
       window.addEventListener("unlockProtocol", unlockHandler)
 
+
       return () => {window.removeEventListener("unlockProtocol", unlockHandler)
       if(existingScript){
         existingScript.remove();};
@@ -157,11 +122,42 @@ export default function Donate(){
         <div className="App">
           <header className="App-header">
           <Paper className={classes.layout}>
+          <Typography variant="h6" gutterBottom>
+            Unlock and Send!
+          </Typography>
               <Grid>
                   
                   <Paper variant="outlined" style={{marginTop:5}}>
                     
-                      {renderTokenList(tokenMap)}
+                  <Grid container justify="center">
+                      {props.location.state.action === "donation" ?
+                      <div>
+                        <TextField name="name" label="Name to show" value={name} onChange={changeNameField} fullWidth/>
+                        {locked === "locked" ?
+                        <Button variant="contained" color="primary" onClick={donate} style={{marginTop:5}}>Unlock</Button>
+                        :
+                        locked === "unlocked" ?
+                        <Button variant="contained" color="primary" onClick={send} style={{marginTop:5}}>Send Notification</Button> 
+                        :
+                        <div/>
+                        }
+                      </div>  :
+                      props.location.state.action === "superchat" ? 
+                          <div>
+                            <TextField name="name" label="Your Username" value={name} onChange={changeNameField} fullWidth/>
+                            <TextField name="message" label="Message" value={message} onChange={changeMessageField} fullWidth/>
+                            {locked === "locked" ?
+                            <Button variant="contained" color="primary" onClick={donate} style={{marginTop:5}} >Unlock</Button>
+                            :
+                            locked === "unlocked" ?
+                            <Button variant="contained" color="primary" onClick={send} style={{marginTop:5}}>Send Message</Button> 
+                            :
+                            <div/>
+                            }
+                          </div>
+                          :
+                          <div/>}
+                    </Grid>
                     
                   </Paper>
               </Grid>
