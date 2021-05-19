@@ -1,12 +1,12 @@
 import React, {useCallback, useEffect, useState} from "react"
-import Checkout from "./Checkout"
-import { Check, PinDropSharp } from "@material-ui/icons";
+import './check.css'
 import Grid from '@material-ui/core/Grid';
 import { Button, TextField } from '@material-ui/core';
 import {API} from 'aws-amplify'
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 
 export default function Donate(props){
    console.log(props)
@@ -14,8 +14,7 @@ export default function Donate(props){
    const [address, setAddress] = useState('pending');
    const [name, setName] = useState();
    const [message, setMessage] = useState();
-   const [tokenMap, setTokenMap] = useState([]);
-   const [price, setPrice] =useState();
+   const [sent, setSent] = useState(null);
   
    const useStyles = makeStyles((theme) => ({
     layout: {
@@ -60,7 +59,8 @@ export default function Donate(props){
   }
    const changeNameField = (e) => {setName(e.target.value)}
    const changeMessageField = (e) => {setMessage(e.target.value)}
-   const send = async () => {API.post(
+   const send = async () => {
+     const snd = await API.post(
      'streamlabs',
      '/donate',
      {body:{
@@ -70,7 +70,9 @@ export default function Donate(props){
        amount:props.location.state.price,
        currency:'USD',
        
-     }})}
+     }})
+     setSent(snd.Response.Donation)
+    }
 
   
    console.log("on donate")
@@ -122,6 +124,25 @@ export default function Donate(props){
         <div className="App">
           <header className="App-header">
           <Paper className={classes.layout}>
+          {sent !== null ? 
+            sent === false ? 
+              <div>
+                <Typography variant="h6" gutterBottom>
+                  An Error Happened!
+                </Typography>
+                <ErrorOutlineIcon fontSize="large" style={{color: "red"}}/>
+                 
+              </div>
+            :
+            <div>
+              <Typography variant="h6" gutterBottom>
+                Sent!
+              </Typography>
+              <div class="check"/>
+            </div>
+          
+          :
+          <div>
           <Typography variant="h6" gutterBottom>
             Unlock and Send!
           </Typography>
@@ -158,9 +179,11 @@ export default function Donate(props){
                           :
                           <div/>}
                     </Grid>
-                    
+                  
                   </Paper>
               </Grid>
+              </div>
+              }
           </Paper>
           </header>
         </div>
