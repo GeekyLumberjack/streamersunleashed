@@ -1,4 +1,4 @@
-import React, { useEffect, } from 'react';
+import React, { useEffect, useReducer, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Paper from '@material-ui/core/Paper';
@@ -51,14 +51,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+
 const steps = ['Authorize Streamlabs', 'Setup Token Actions', 'Finished!'];
 
-function getStepContent(step, walletAddress, code, tokenMap) {
+function getStepContent(step, walletAddress, code, tokenMap, dispatch) {
   switch (step) {
     case 0:
       return <AccessForm props={{walletAddress:walletAddress, code:code}}/>;
     case 1:
-      return <TokenMapForm props={{walletAddress: walletAddress, tokenMap: tokenMap}} />;
+      return <TokenMapForm props={{walletAddress: walletAddress, tokenMap: tokenMap, dispatch:dispatch}}/>;
     case 2:
       return <CustomizeUrl props={{walletAddress: walletAddress}} />;
     default:
@@ -68,27 +70,97 @@ function getStepContent(step, walletAddress, code, tokenMap) {
 
 export default function Checkout(props) {
   const [code, setCode] = React.useState(false);
-  const [tokenMap, setTokenMap] = React.useState();
+  const [tokenList, setTokenList] = React.useState();
+
+  function reducer(state, action){
+    switch(action.type){
+        case "initialLoad":
+            console.log(action)
+            return{...state, ...action.action}
+        case "addToken":
+            console.log(state);
+            var lLen = state.TokenList.length
+            var addressName = "address"+ lLen.toString()
+            var actionName = "action"+lLen.toString()
+            var obj = {}
+            obj[addressName] = ""
+            obj[actionName] = ""
+            console.log(state)
+            return{...state,
+                 TokenList:[
+                     ...state.TokenList, 
+                        obj
+                    ]
+                }
+        case "changeTokenValue":
+            const cField = action.action.field;
+            const cValue = action.action.value;
+            var indexi, indexx;
+            for(var i=0;i<state.TokenList.length;i++){
+                var keys = Object.keys(state.TokenList[i])
+                for(var x=0;x<keys.length;x++){
+                    if(keys[x] === cField){                            
+                        indexi = i;
+                        indexx = x; 
+                    }
+                }
+            }
+            var newTokenList = state.TokenList;
+            newTokenList[indexi][cField] = cValue;
+            return {...state, TokenList: newTokenList}
+        
+        case "saveTokenMap":
+            
+            return {...state, TokenList:action.action}
+
+        default:
+            return state
+
+
+    }
+}
+
+
+  async function saveTokenMap(e){
+    const results = await API.post("streamlabs","/tokenMap",{body: {walletAddress:props.props, tokenMap:state.TokenList}})
+    //dispatch({type:"saveTokenMap",action:results.Items})
+  };
+
+  const [state, dispatch] = useReducer(reducer, {});
+
+  
   async function onLoad() {
     try {
       if(props){
         const response = await API.post('streamlabs','/profile',{body:{walletAddress: props.props}});
         setCode(response.code)
-        setTokenMap(response.hasCode.Item.tokenMap)
+        if(response.hasCode.Item.tokenMap.length > 0){
+            setTokenList(response.hasCode.Item.tokenMap);
+            dispatch({type:'saveTokenMap',action:response.hasCode.Item.tokenMap});
+        }
+        else{
+          setTokenList([{address0:"",action0:""}]);
+          dispatch({type:'saveTokenMap',action:[{address0:"",action0:""}]});
+        }
       }  
     } catch (e) {
       console.log(e.message); 
     }
   }
+  
   useEffect(() => {
     
       onLoad();
+      
     }, [props.props]);
-
+  
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
 
   const handleNext = () => {
+    if (activeStep === 1){
+      saveTokenMap();
+    }
     setActiveStep(activeStep + 1);
   };
 
@@ -114,7 +186,7 @@ export default function Checkout(props) {
           </Stepper>
             
             <React.Fragment>
-              {getStepContent(activeStep, props.props, code, tokenMap)}
+              {getStepContent(activeStep, props.props, code, state.TokenList, dispatch)}
               <div className={classes.buttons}>
                 {activeStep !== 0 && (
                   <Button onClick={handleBack} className={classes.button}>
