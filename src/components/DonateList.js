@@ -72,7 +72,7 @@ export default function DonateList(){
 
     function renderTokenList(tokenList){
       return(
-      tokenList.map((token) => (
+      tokenList.map((token) =>(
         <Grid container justify="center">
           {Object.values(token)[0] === "donation" ?
           <Link to={{pathname:"/lock/"+Object.values(token)[1], state: {price: Object.values(token)[2], action: Object.values(token)[0], walletAddress:walletAddress}}}>
@@ -80,7 +80,7 @@ export default function DonateList(){
           </Link>  :
           Object.values(token)[0] === "superchat" ? 
               <Link to={{pathname:"/lock/"+Object.values(token)[1], state: {price: Object.values(token)[2], action: Object.values(token)[0], walletAddress:walletAddress}}}>
-                <Button variant="contained" color="primary" style={{marginTop:5}} >Donate {Object.values(token)[2]}</Button>
+                <Button variant="contained" color="primary" style={{marginTop:5}} >Superchat {Object.values(token)[2]}</Button>
               </Link>
               :
               <div/>}
