@@ -80,7 +80,7 @@ export default function TokenMapForm(props) {
       
             {RenderTokenList(props.props.tokenMap)}
         <Grid>
-            <Button onClick={addToken} variant="contained" color="primary" style={{ 'margin-top': 20 }}>Add Token</Button>
+            <Button onClick={addToken} variant="contained" color="primary" style={{ 'margin-top': 20 }}>Add Lock</Button>
             
         </Grid>
       
