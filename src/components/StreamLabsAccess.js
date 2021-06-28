@@ -27,17 +27,16 @@ useEffect(() => {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         if(props.props.code){
-          setHasCode(true);
+          setHasCode(true)
         }
         else{
           if(urlParams.has('code')){
             const code = await API.post('streamlabs','/streamlabsAccess',{body:{code:urlParams.get("code"),walletAddress:props.props.walletAddress}})
-            const response = await API.post('streamlabs','/profile',{body:{walletAddress: props.props}});
-            console.log(code, response)
-            setHasCode(response.code);
+            console.log(code)
+            setHasCode(code.code)
           } 
           else{
-            setHasCode(props.props.code);
+            setHasCode(props.props.code)
           }
         }
       } catch (e) {
