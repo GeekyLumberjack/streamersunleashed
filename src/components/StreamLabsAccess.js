@@ -32,8 +32,9 @@ useEffect(() => {
         else{
           if(urlParams.has('code')){
             const code = await API.post('streamlabs','/streamlabsAccess',{body:{code:urlParams.get("code"),walletAddress:props.props.walletAddress}})
-            console.log(code)
-            setHasCode(code.code);
+            const response = await API.post('streamlabs','/profile',{body:{walletAddress: props.props}});
+            console.log(code, response)
+            setHasCode(response.code);
           } 
           else{
             setHasCode(props.props.code);
