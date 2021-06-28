@@ -28,6 +28,11 @@ function App(){
             <Typography variant="h6" color="inherit" noWrap>
                 Streamers Unleashed
             </Typography>
+            <Typography variant="h6" color="inherit" noWrap style={{marginLeft:'auto'}}>
+                <a href="https://discord.gg/SpK4Fxs2" style={{color:'black'}}>
+                  Support
+                </a>
+            </Typography>
             </Toolbar>
             <Routes/>
             <Copyright />
