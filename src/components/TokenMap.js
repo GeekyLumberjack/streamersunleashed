@@ -4,6 +4,8 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
+import ButtonBase from '@material-ui/core/ButtonBase';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import API from '@aws-amplify/api';
 import { tokenMapConfig } from './networkConfigs'
 
@@ -12,6 +14,9 @@ export default function TokenMapForm(props) {
     console.log(props.props.dispatch)
     const addToken = (e) => props.props.dispatch({type:"addToken"});  
     const fieldChange = (e) => props.props.dispatch({type: "changeTokenValue", action: {field: e.target.name, value:  e.target.value}})
+    function deleteToken (e){
+      props.props.dispatch({type:"deleteToken", action:e})
+    };
     useEffect( () => {})
     
     function RenderTokenList(TokenList){
@@ -20,7 +25,7 @@ export default function TokenMapForm(props) {
         <div>
             {TokenList.map((token) => (
             <Grid  container spacing={3}>
-                <Grid  item xs={3} md={3}>
+                <Grid  item xs={2} md={2}>
                   <TextField 
                     name={Object.entries(token).find(net => net[0].slice(0,-1) === "network")[0]} 
                     label="Network" 
@@ -57,6 +62,11 @@ export default function TokenMapForm(props) {
                 <MenuItem value="donation">Donation</MenuItem>
                 <MenuItem value="superchat">Superchat</MenuItem>
                 </TextField>
+                </Grid>
+                <Grid  item xs={1} md={1} style={{marginTop:20, }}>
+                      <ButtonBase onClick={() => deleteToken(Object.entries(token).find(net => net[0].slice(0,-1) === "action")[0])}>
+                        <DeleteForeverIcon />
+                      </ButtonBase>
                 </Grid>
             </Grid>
             ))}

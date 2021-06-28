@@ -12,6 +12,7 @@ import AccessForm from './StreamLabsAccess';
 import TokenMapForm from './TokenMap';
 import CustomizeUrl from './CustomizeUrl';
 import {API} from 'aws-amplify'
+import { CompassCalibrationOutlined } from '@material-ui/icons';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -78,8 +79,15 @@ export default function Checkout(props) {
             console.log(action)
             return{...state, ...action.action}
         case "addToken":
-            console.log(state);
-            var lLen = state.TokenList.length
+            
+            if(state.TokenList.length < 1){
+              var lLen = 0
+            }
+            else{
+              var lastItem = state.TokenList[state.TokenList.length -1]
+              var lLen = Number(Object.keys(lastItem)[0][Object.keys(lastItem)[0].length - 1 ]) + 1
+            }
+            
             var addressName = "address"+ lLen.toString()
             var actionName = "action"+lLen.toString()
             var network = "network"+lLen.toString()
@@ -87,14 +95,28 @@ export default function Checkout(props) {
             obj[addressName] = ""
             obj[actionName] = ""
             obj[network] = ""
-            console.log(state)
+           
             return{...state,
                  TokenList:[
                      ...state.TokenList, 
                         obj
                     ]
                 }
+        case "deleteToken":
+          
+          var index;
+          var newTokenList = state.TokenList
+          for(var x=0; x<newTokenList.length; x++){
+            if(Object.entries(newTokenList[x]).find(net => net[0] === action.action)){
+              newTokenList.splice(x, 1);
+              return {...state, TokenList: newTokenList}
+            }
+          }
+          
+          return{...state}
+          
         case "changeTokenValue":
+            console.log(action)
             const cField = action.action.field;
             const cValue = action.action.value;
             var indexi, indexx;
@@ -128,7 +150,7 @@ export default function Checkout(props) {
     //dispatch({type:"saveTokenMap",action:results.Items})
   };
 
-  const [state, dispatch] = useReducer(reducer, {});
+  const [state, dispatch] = useReducer(reducer, {TokenList:[]});
 
   
   async function onLoad() {

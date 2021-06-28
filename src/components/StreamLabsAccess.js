@@ -26,12 +26,18 @@ useEffect(() => {
       try {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        if(urlParams.has('code')){
-          const code = await API.post('streamlabs','/streamlabsAccess',{body:{code:urlParams.get("code"),walletAddress:props.props.walletAddress}})
-          setHasCode(code.code)
-        } 
+        if(props.props.code){
+          setHasCode(true);
+        }
         else{
-          setHasCode(props.props.code)
+          if(urlParams.has('code')){
+            const code = await API.post('streamlabs','/streamlabsAccess',{body:{code:urlParams.get("code"),walletAddress:props.props.walletAddress}})
+            console.log(code)
+            setHasCode(code.code);
+          } 
+          else{
+            setHasCode(props.props.code);
+          }
         }
       } catch (e) {
         console.log(e.message); 
