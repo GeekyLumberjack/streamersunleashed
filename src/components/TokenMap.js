@@ -11,7 +11,7 @@ import { tokenMapConfig } from './networkConfigs'
 
 
 export default function TokenMapForm(props) {
-    console.log(props.props.dispatch)
+    
     const addToken = (e) => props.props.dispatch({type:"addToken"});  
     const fieldChange = (e) => props.props.dispatch({type: "changeTokenValue", action: {field: e.target.name, value:  e.target.value}})
     function deleteToken (e){

@@ -150,7 +150,7 @@ export default function Checkout(props) {
     //dispatch({type:"saveTokenMap",action:results.Items})
   };
 
-  const [state, dispatch] = useReducer(reducer, {TokenList:[]});
+  const [state, dispatch] = useReducer(reducer, {TokenList:[{"address0":"","action0":"","network0":""}]});
 
   
   async function onLoad() {
@@ -161,10 +161,6 @@ export default function Checkout(props) {
         if(response.hasCode.Item.tokenMap.length > 0){
             setTokenList(response.hasCode.Item.tokenMap);
             dispatch({type:'saveTokenMap',action:response.hasCode.Item.tokenMap});
-        }
-        else{
-          setTokenList([{address0:"",action0:""}]);
-          dispatch({type:'saveTokenMap',action:[{address0:"",action0:""}]});
         }
       }  
     } catch (e) {
