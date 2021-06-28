@@ -1,20 +1,29 @@
-import React, {useCallback, useEffect, useState} from "react"
+import React, {useCallback, useEffect, useState, setState} from "react"
 import './check.css'
 import Grid from '@material-ui/core/Grid';
-import { Button, TextField } from '@material-ui/core';
+import { Button, ButtonBase, TextField } from '@material-ui/core';
 import {API} from 'aws-amplify'
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { Web3Service } from '@unlock-protocol/unlock-js';
+import { Paywall, isUnlocked } from '@unlock-protocol/paywall';
 import Typography from '@material-ui/core/Typography';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import Alert from '@material-ui/lab/Alert';
+import SendDonation from "./SendDonation";
+import ChooseDonationButtons from './chooseDonationButtons'
+import { networkConfigs, providerConfig } from './networkConfigs'
 
 export default function Donate(props){
    console.log(props)
+   //let unlockHandler;
    const [locked, setLocked] = useState('pending');
    const [address, setAddress] = useState('pending');
-   const [name, setName] = useState();
-   const [message, setMessage] = useState();
+   const [name, setName] = useState(null);
+   const [message, setMessage] = useState(null);
+   const [superChat, setSuperChat] = useState(false);
    const [sent, setSent] = useState(null);
+   const [tokenMap, setTokenMap] = useState(false);
+   const [activeButton, setActiveButton] = useState('1');
   
    const useStyles = makeStyles((theme) => ({
     layout: {
@@ -38,11 +47,15 @@ export default function Donate(props){
   }));
   const classes = useStyles();
 
+  var web3 = new Web3Service(providerConfig);
 
    const urlParams = new URL(window.location);
-   const lockAddress = urlParams.pathname.split("/")[2]
+   const walletAddress = urlParams.pathname.split("/")[2]
+   
+   
+
    var paywallConfig = {
-       network: "100", 
+       network: 100, 
        locks: {
        },
        icon: 'https://app.unlock-protocol.com/static/images/svg/default.svg', 
@@ -55,136 +68,125 @@ export default function Donate(props){
        },
        referrer: "0x6115BB18b17CFC53A8f73202D98221A89501b154"
    };
-   paywallConfig['locks'][lockAddress] = {
-    name: "One time contribution!"
-  }
+   var paywall = new Paywall(paywallConfig, networkConfigs)
    const changeNameField = (e) => {setName(e.target.value)}
    const changeMessageField = (e) => {setMessage(e.target.value)}
-   const send = async () => {
-     const snd = await API.post(
-     'streamlabs',
-     '/donate',
-     {body:{
-       name: name,
-       message:message,
-       walletAddress:props.location.state.walletAddress,
-       amount:props.location.state.price,
-       currency:'USD',
-       
-     }})
-     setSent(snd.Response.Donation)
-    }
+   
 
   
-   console.log("on donate")
-   const unlockHandler = useCallback(e => {
-                console.log(e)
-                setLocked(e.detail)
-                setAddress(e.currentTarget.localStorage.userInfo)
-
-            });
+   
+   
     /**
      * Invoked to show the checkout modal provided by Unlock (optional... but convenient!)
      */
-    function donate(lock)  {
-        console.log(lock)
-        paywallConfig['locks'][lock] = {
+    function donate()  {
+      
+        paywallConfig['network'] = Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "network")[1]
+        paywallConfig['locks'][Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "address")[1]] = {
           name: "One time contribution!"
         }
-        window.unlockProtocol && window.unlockProtocol.loadCheckoutModal()
+        //console.log(paywallConfig, networkConfigs)
+        
+        paywall.loadCheckoutModal(paywallConfig)
+        //setLocked(paywall.getState())
     };
 
+    async function getTokenMap(){  
+      const getTokens = await API.get(
+      'streamlabs',
+      '/getTokenMap?walletAddress='+walletAddress,
+      )
+      const map =getTokens.Response.Item.tokenMap
+      
+      for(var i=0; i<map.length; i++){
+        try{
+          var getLockPrice = await web3.getLock(Object.entries(map[i]).find(net => net[0].slice(0,-1) === "address")[1],Object.entries(map[i]).find(net => net[0].slice(0,-1) === "network")[1]);
+          map[i]['price'] = getLockPrice.keyPrice;
+        }catch{
+          map[i]['price'] = "?"
+        }
+        
+      }
+      
+      setTokenMap(map);
+      
+      
+    }
+
+    function needsAlert(){
+
+      for(var i=0; i<tokenMap.length; i++){
+        if(Object.entries(tokenMap[i]).find(net => net[0] === "price")[1] === "?"){
+          return true
+        }
+      }
+      return false
+    }
+
+    const unlockHandler = useCallback(e => {
+      if(e.detail.state === 'unlocked'){
+        setLocked(e.detail.state)
+        
+      }
+      setAddress(e.currentTarget.localStorage.userInfo)
+      
+    });
 
     useEffect(() => {
-      console.log(props)
-      const existingScript = document.getElementById('unlock-protocol')
-
-      if (!existingScript) {
-          const script = document.createElement('script')
-
-          script.innerText = `(function(d, s) {
-          var js = d.createElement(s),
-              sc = d.getElementsByTagName(s)[0];
-          js.src="https://paywall.unlock-protocol.com/static/unlock.latest.min.js";
-          sc.parentNode.insertBefore(js, sc); }(document, "script"));
-          `
-          document.body.appendChild(script)
-      }
-    
       
-      window.unlockProtocolConfig = paywallConfig
-      window.addEventListener("unlockProtocol", unlockHandler)
-
-
+      if(tokenMap === false){
+        getTokenMap();
+      }
+      window.addEventListener("unlockProtocol.status", unlockHandler)
+      
       return () => {window.removeEventListener("unlockProtocol", unlockHandler)
-      if(existingScript){
-        existingScript.remove();};
     }},[]);
         
       return (
         <div className="App">
           <header className="App-header">
           <Paper className={classes.layout}>
-          {sent !== null ? 
-            sent === false ? 
-              <div>
-                <Typography variant="h6" gutterBottom>
-                  An Error Happened!
-                </Typography>
-                <ErrorOutlineIcon fontSize="large" style={{color: "red"}}/>
-                 
-              </div>
-            :
-            <div>
-              <Typography variant="h6" gutterBottom>
-                Sent!
-              </Typography>
-              <div class="check"/>
-            </div>
-          
-          :
-          <div>
           <Typography variant="h6" gutterBottom>
             Unlock and Send!
           </Typography>
               <Grid>
-                  
-                  <Paper variant="outlined" style={{marginTop:5}}>
-                    
+                  {locked === 'unlocked' ?  
+                    <SendDonation name={name} message={message} address={address} amount={Object.entries(tokenMap[Number(activeButton)]).find(net => net[0] === "price")[1]} />
+                  :
                   <Grid container justify="center">
-                      {props.location.state.action === "donation" ?
-                      <div>
-                        <TextField name="name" label="Name to show" value={name} onChange={changeNameField} fullWidth/>
-                        {locked === "locked" ?
-                        <Button variant="contained" color="primary" onClick={donate} style={{marginTop:5}}>Unlock</Button>
-                        :
-                        locked === "unlocked" ?
-                        <Button variant="contained" color="primary" onClick={send} style={{marginTop:5}}>Send Notification</Button> 
-                        :
-                        <div/>
-                        }
-                      </div>  :
-                      props.location.state.action === "superchat" ? 
-                          <div>
-                            <TextField name="name" label="Your Username" value={name} onChange={changeNameField} fullWidth/>
-                            <TextField name="message" label="Message" value={message} onChange={changeMessageField} fullWidth/>
-                            {locked === "locked" ?
-                            <Button variant="contained" color="primary" onClick={donate} style={{marginTop:5}} >Unlock</Button>
-                            :
-                            locked === "unlocked" ?
-                            <Button variant="contained" color="primary" onClick={send} style={{marginTop:5}}>Send Message</Button> 
+                    
+                        <TextField name="name" label="Your Username" value={name} onChange={changeNameField} fullWidth/>
+                        
+                        <Grid container justify="center" style={{marginTop:20}}>
+                          {tokenMap !== false ?
+                            needsAlert() ? 
+                              <Alert severity="error" style={{marginBottom:10}}>Some prices failed to retrieve, give it a refresh to see the prices!</Alert>
+                              :
+                              <div/>
                             :
                             <div/>
-                            }
-                          </div>
-                          :
-                          <div/>}
+                          }
+                          <ChooseDonationButtons props={{'tokenMap':tokenMap, 'activeButton':activeButton, 'setActiveButton':setActiveButton} }/>
+                        </Grid>
+                        
+                        {tokenMap[Number(activeButton)] ? 
+                         Object.values(tokenMap[Number(activeButton)])[0] === 'superchat' ?
+                        <div>
+                          <TextField name="message" label="Message" value={message} onChange={changeMessageField} fullWidth/>
+                          <Button variant="contained" color="primary" onClick={donate} style={{marginTop:20}} disabled={name === null || message === null ? true : false}>Send Message</Button> 
+                        </div>
+                        :
+                        <Button variant="contained" color="primary" onClick={donate} style={{marginTop:20}} disabled={name === null ? true : false}>Send Donation</Button> 
+                        
+                        :
+                        <div/>}
+                        
+                        
+                            
                     </Grid>
-                  
-                  </Paper>
+                  }
+
               </Grid>
-              </div>
-              }
           </Paper>
           </header>
         </div>

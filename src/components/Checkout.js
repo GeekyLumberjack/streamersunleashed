@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-      width: 600,
+      width: 800,
       marginLeft: 'auto',
       marginRight: 'auto',
     },
@@ -82,9 +82,11 @@ export default function Checkout(props) {
             var lLen = state.TokenList.length
             var addressName = "address"+ lLen.toString()
             var actionName = "action"+lLen.toString()
+            var network = "network"+lLen.toString()
             var obj = {}
             obj[addressName] = ""
             obj[actionName] = ""
+            obj[network] = ""
             console.log(state)
             return{...state,
                  TokenList:[

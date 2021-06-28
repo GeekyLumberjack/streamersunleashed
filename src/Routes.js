@@ -9,7 +9,7 @@ export default function Routes({ appProps }){
     return(
     <Switch>
         <Route path="/" exact component={AuthOwner} props={appProps} />
-        <Route path="/donate/:id" exact component={DonateList} props={appProps} />
+        <Route path="/donate/:id" exact component={Donate} props={appProps} />
         <Route path="/lock/:lock" exact component={Donate} props={appProps} />
         <Route component={NotFound} />
     </Switch> )
