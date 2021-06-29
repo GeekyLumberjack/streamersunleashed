@@ -23,7 +23,7 @@ export default function Donate(props){
    const [superChat, setSuperChat] = useState(false);
    const [sent, setSent] = useState(null);
    const [tokenMap, setTokenMap] = useState(false);
-   const [activeButton, setActiveButton] = useState('1');
+   const [activeButton, setActiveButton] = useState('0');
   
    const useStyles = makeStyles((theme) => ({
     layout: {
