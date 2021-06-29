@@ -19,13 +19,13 @@ const StyledButton = withStyles(() => ({
 
 const styles = makeStyles(() => ({
   buttonContainerWrapper: {
-    display: "flex",
+    //display: "flex",
     justifyContent: "center"
   },
   buttonContainer: {
     border: "1px solid #4F5E65",
     padding: "1rem",
-    display: "flex",
+    //display: "flex",
     justifyContent: "space-between",
     borderRadius: "25px"
   },

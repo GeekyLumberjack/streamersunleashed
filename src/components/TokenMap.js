@@ -20,7 +20,7 @@ export default function TokenMapForm(props) {
     useEffect( () => {})
     
     function RenderTokenList(TokenList){
-        console.log(TokenList)
+        
         return( 
         <div>
             {TokenList.map((token) => (

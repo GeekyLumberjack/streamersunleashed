@@ -134,8 +134,13 @@ export default function Checkout(props) {
             return {...state, TokenList: newTokenList}
         
         case "saveTokenMap":
-            
-            return {...state, TokenList:action.action}
+            var newTokenList = action.action
+            for(var i =newTokenList.length-1; i>0; i--){
+              if(Object.keys(newTokenList[i]).every((k) => newTokenList[i][k] === "")){
+                newTokenList.splice(i,1);
+              }
+            }
+            return {...state, TokenList:newTokenList}
 
         default:
             return state
@@ -146,8 +151,9 @@ export default function Checkout(props) {
 
 
   async function saveTokenMap(e){
+    dispatch({type:"saveTokenMap", action:state.TokenList});
     const results = await API.post("streamlabs","/tokenMap",{body: {walletAddress:props.props, tokenMap:state.TokenList}})
-    //dispatch({type:"saveTokenMap",action:results.Items})
+    
   };
 
   const [state, dispatch] = useReducer(reducer, {TokenList:[{"address0":"","action0":"","network0":""}]});

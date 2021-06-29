@@ -25,7 +25,7 @@ export const networkConfigs = {
 
 export const tokenMapConfig = [
     {'ETH': 1},
-    {'RINKBEY': 4},
+    {'RINKEBY': 4},
     {'XDAI':100},
     {'MATIC':137}
 

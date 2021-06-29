@@ -60,11 +60,11 @@ export default function Donate(props){
        },
        icon: 'https://app.unlock-protocol.com/static/images/svg/default.svg', 
        callToAction: {
-       default: 'This content is locked. Pay with cryptocurrency to access it!',
-       expired: 'This is what is shown when the user had a key which is now expired',
-       pending: 'This is the message shown when the user sent a transaction to purchase a key which has not be confirmed yet',
-       confirmed: 'This is the message shown when the user has a confirmed key',
-       noWallet: 'This is the message shown when the user does not have a crypto wallet which is required...',
+       default: 'Follow the prompts to donate!',
+       expired: 'Your donation has expired! Donate here again!',
+       pending: 'Your donation is pending.',
+       confirmed: 'Thank you for donating!',
+       noWallet: 'Please download a crypto wallet to donate!',
        },
        referrer: "0x6115BB18b17CFC53A8f73202D98221A89501b154"
    };
@@ -83,7 +83,7 @@ export default function Donate(props){
       
         paywallConfig['network'] = Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "network")[1]
         paywallConfig['locks'][Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "address")[1]] = {
-          name: "One time contribution!"
+          name: "Donate!"
         }
         //console.log(paywallConfig, networkConfigs)
         
@@ -160,7 +160,7 @@ export default function Donate(props){
                         <Grid container justify="center" style={{marginTop:20}}>
                           {tokenMap !== false ?
                             needsAlert() ? 
-                              <Alert severity="error" style={{marginBottom:10}}>Some prices failed to retrieve, give it a refresh to see the prices!</Alert>
+                              <Alert severity="error" style={{marginBottom:10}}>Some prices failed to retrieve, refresh to see the prices!</Alert>
                               :
                               <div/>
                             :
