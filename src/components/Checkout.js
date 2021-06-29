@@ -136,7 +136,7 @@ export default function Checkout(props) {
         case "saveTokenMap":
             var newTokenList = action.action
             for(var i =newTokenList.length-1; i>0; i--){
-              if(Object.keys(newTokenList[i]).every((k) => newTokenList[i][k] === "")){
+              if(Object.entries(newTokenList[i]).find(net => net[0].slice(0,-1) === "address" && net[1] === "")){
                 newTokenList.splice(i,1);
               }
             }
