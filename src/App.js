@@ -26,11 +26,17 @@ function App(){
     <AppBar position="absolute" color="default" className={{position: 'relative',}}>
             <Toolbar>
             <Typography variant="h6" color="inherit" noWrap>
-                Streamers Unleashed
+                Streamers Unleashed 
             </Typography>
+            
             <Typography variant="h6" color="inherit" noWrap style={{marginLeft:'auto'}}>
+            <a href={window.location.href.slice(0,37) === "https://streamersunleashed.com/donate" ? "https://geekylumberjack.medium.com/donating-with-streamers-unleashed-6c93e7fe2a00": "https://geekylumberjack.medium.com/configure-streamers-unleashed-4b2585dcc624"} style={{color:'black'}}>
+              Guide
+            </a>
+            </Typography>
+            <Typography variant="h6" color="inherit" noWrap style={{marginLeft:20}}>
                 <a href="https://discord.gg/SpK4Fxs2" style={{color:'black'}}>
-                  Support
+                  Chat
                 </a>
             </Typography>
             </Toolbar>
