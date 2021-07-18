@@ -13,18 +13,20 @@ import SendDonation from "./SendDonation";
 import ChooseDonationButtons from './chooseDonationButtons'
 import { networkConfigs, providerConfig } from './networkConfigs'
 
-export default function Donate(props){
-   console.log(props)
-   //let unlockHandler;
+
+
+export default function Donate(){
+   const [paywall, setPaywall] = useState();
    const [locked, setLocked] = useState('pending');
    const [address, setAddress] = useState('pending');
    const [name, setName] = useState(null);
    const [message, setMessage] = useState(null);
-   const [superChat, setSuperChat] = useState(false);
+   const [needsAlert, setNeedsAlert] = useState(false);
    const [sent, setSent] = useState(null);
-   const [tokenMap, setTokenMap] = useState(false);
+   const [tokenMap, setTokenMap] = useState([]);
    const [activeButton, setActiveButton] = useState('0');
   
+   
    const useStyles = makeStyles((theme) => ({
     layout: {
       width: 'auto',
@@ -47,11 +49,12 @@ export default function Donate(props){
   }));
   const classes = useStyles();
 
-  var web3 = new Web3Service(providerConfig);
-
-   const urlParams = new URL(window.location);
-   const walletAddress = urlParams.pathname.split("/")[2]
-   
+  useEffect(() => {
+    setPaywall(new Paywall(paywallConfig, networkConfigs))
+    window.addEventListener("unlockProtocol.status", unlockHandler)
+    
+    return () => {window.removeEventListener("unlockProtocol", unlockHandler)
+  }},[]);
    
 
    var paywallConfig = {
@@ -68,7 +71,7 @@ export default function Donate(props){
        },
        referrer: "0x6115BB18b17CFC53A8f73202D98221A89501b154"
    };
-   var paywall = new Paywall(paywallConfig, networkConfigs)
+   
    const changeNameField = (e) => {setName(e.target.value)}
    const changeMessageField = (e) => {setMessage(e.target.value)}
    
@@ -91,29 +94,8 @@ export default function Donate(props){
         //setLocked(paywall.getState())
     };
 
-    async function getTokenMap(){  
-      const getTokens = await API.get(
-      'streamlabs',
-      '/getTokenMap?walletAddress='+walletAddress,
-      )
-      const map =getTokens.Response.Item.tokenMap
-      
-      for(var i=0; i<map.length; i++){
-        try{
-          var getLockPrice = await web3.getLock(Object.entries(map[i]).find(net => net[0].slice(0,-1) === "address")[1],Object.entries(map[i]).find(net => net[0].slice(0,-1) === "network")[1]);
-          map[i]['price'] = getLockPrice.keyPrice;
-        }catch{
-          map[i]['price'] = "?"
-        }
-        
-      }
-      
-      setTokenMap(map);
-      
-      
-    }
 
-    function needsAlert(){
+    /*function needsAlert(){
 
       for(var i=0; i<tokenMap.length; i++){
         if(Object.entries(tokenMap[i]).find(net => net[0] === "price")[1] === "?"){
@@ -121,7 +103,7 @@ export default function Donate(props){
         }
       }
       return false
-    }
+    }*/
 
     const unlockHandler = useCallback(e => {
       if(e.detail.state === 'unlocked'){
@@ -133,14 +115,40 @@ export default function Donate(props){
     });
 
     useEffect(() => {
-      
-      if(tokenMap === false){
-        getTokenMap();
+       async function getTokenMap() {  
+          try{
+            var web3 = new Web3Service(providerConfig);
+            const urlParams = new URL(window.location);
+            const walletAddress = urlParams.pathname.split("/")[2]
+            const getTokens = await API.get(
+            'streamlabs',
+            '/getTokenMap?walletAddress='+walletAddress,
+            )
+            const map =getTokens.Response.Item.tokenMap
+            
+            for(var i=0; i<map.length; i++){
+              try{
+                var getLockPrice = await web3.getLock(Object.entries(map[i]).find(net => net[0].slice(0,-1) === "address")[1],Object.entries(map[i]).find(net => net[0].slice(0,-1) === "network")[1]);
+                map[i]['price'] = getLockPrice.keyPrice;
+              }catch{
+                map[i]['price'] = "?"
+                setNeedsAlert(true);
+              }
+              
+            }
+            
+            setTokenMap(map);
+            
+        }catch (e) {
+          console.log(e.message); 
+        }
       }
-      window.addEventListener("unlockProtocol.status", unlockHandler)
+  
+      getTokenMap()
+        
       
-      return () => {window.removeEventListener("unlockProtocol", unlockHandler)
-    }},[]);
+    },[]);
+    
         
       return (
         <div className="App">
@@ -158,25 +166,23 @@ export default function Donate(props){
                         <TextField name="name" label="Your Username" value={name} onChange={changeNameField} fullWidth/>
                         
                         <Grid container justify="center" style={{marginTop:20}}>
-                          {tokenMap !== false ?
-                            needsAlert() ? 
+                          {
+                            needsAlert ? 
                               <Alert severity="error" style={{marginBottom:10}}>Some prices failed to retrieve, refresh to see the prices!</Alert>
                               :
                               <div/>
-                            :
-                            <div/>
                           }
-                          <ChooseDonationButtons props={{'tokenMap':tokenMap, 'activeButton':activeButton, 'setActiveButton':setActiveButton} }/>
+                         <ChooseDonationButtons props={{'tokenMap':tokenMap, 'activeButton':activeButton, 'setActiveButton':setActiveButton} }/>
                         </Grid>
                         
-                        {tokenMap[Number(activeButton)] ? 
-                         Object.values(tokenMap[Number(activeButton)])[0] === 'superchat' ?
+                        {tokenMap.length > 0 ? 
+                         Object.entries(tokenMap[Number(activeButton)]).find(net => net[1] === "superchat") ?
                         <div>
                           <TextField name="message" label="Message" value={message} onChange={changeMessageField} fullWidth/>
-                          <Button variant="contained" color="primary" onClick={donate} style={{marginTop:20}} disabled={name === null || message === null ? true : false}>Send Message</Button> 
+                          <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name === null || message === null ? true : false}>Send Message</Button> 
                         </div>
                         :
-                        <Button variant="contained" color="primary" onClick={donate} style={{marginTop:20}} disabled={name === null ? true : false}>Send Donation</Button> 
+                        <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name === null ? true : false}>Send Donation</Button> 
                         
                         :
                         <div/>}

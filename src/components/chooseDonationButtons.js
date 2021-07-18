@@ -42,9 +42,9 @@ const styles = makeStyles(() => ({
 
 export default function ChooseDonationButtons(props) {
   const classes = styles();
-  console.log("PROPS",props.props.tokenMap)
+  
 
-  React.useEffect(() => {})
+  
 
   const clickedButtonHandler = (e) => {
     console.log(e.target);
