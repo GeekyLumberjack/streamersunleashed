@@ -76,34 +76,20 @@ export default function Donate(){
    const changeMessageField = (e) => {setMessage(e.target.value)}
    
 
-  
-   
-   
-    /**
-     * Invoked to show the checkout modal provided by Unlock (optional... but convenient!)
-     */
     function donate()  {
       
         paywallConfig['network'] = Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "network")[1]
         paywallConfig['locks'][Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "address")[1]] = {
           name: "Donate!"
         }
-        //console.log(paywallConfig, networkConfigs)
+        
         
         paywall.loadCheckoutModal(paywallConfig)
-        //setLocked(paywall.getState())
+        
     };
 
 
-    /*function needsAlert(){
-
-      for(var i=0; i<tokenMap.length; i++){
-        if(Object.entries(tokenMap[i]).find(net => net[0] === "price")[1] === "?"){
-          return true
-        }
-      }
-      return false
-    }*/
+    
 
     const unlockHandler = useCallback(e => {
       if(e.detail.state === 'unlocked'){
