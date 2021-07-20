@@ -5,27 +5,48 @@ import { Button, ButtonBase, TextField } from '@material-ui/core';
 import {API} from 'aws-amplify'
 import Paper from '@material-ui/core/Paper';
 import { makeStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { Web3Service } from '@unlock-protocol/unlock-js';
-import { Paywall, isUnlocked } from '@unlock-protocol/paywall';
+import { Web3Service, WalletService } from '@unlock-protocol/unlock-js';
+import { useWeb3Context } from 'web3-react'
+import { Paywall } from '@unlock-protocol/paywall';
 import Typography from '@material-ui/core/Typography';
 import Alert from '@material-ui/lab/Alert';
 import SendDonation from "./SendDonation";
 import ChooseDonationButtons from './chooseDonationButtons'
 import { networkConfigs, providerConfig } from './networkConfigs'
+import { NetworkCellOutlined } from "@material-ui/icons";
 
 
 
 export default function Donate(){
+  var paywallConfig = {
+    network: 100, 
+    locks: {
+    },
+    icon: 'https://app.unlock-protocol.com/static/images/svg/default.svg', 
+    callToAction: {
+    default: 'Follow the prompts to donate!',
+    expired: 'Your donation has expired! Donate here again!',
+    pending: 'Your donation is pending.',
+    confirmed: 'Thank you for donating!',
+    noWallet: 'Please download a crypto wallet to donate!',
+    },
+    referrer: "0x6115BB18b17CFC53A8f73202D98221A89501b154"
+    };
    const [paywall, setPaywall] = useState();
-   const [locked, setLocked] = useState('pending');
-   const [address, setAddress] = useState('pending');
-   const [name, setName] = useState(null);
-   const [message, setMessage] = useState(null);
+   const [intervalId, setIntervalId] = useState();
+   const [unlocked, setUnlocked] = useState(false);
+   const [address, setAddress] = useState(false);
+   const [name, setName] = useState("");
+   const [message, setMessage] = useState("");
    const [needsAlert, setNeedsAlert] = useState(false);
-   const [sent, setSent] = useState(null);
+   const [web3, setWeb3] = useState(new Web3Service(providerConfig));
+   const [authenticated, setAuthenticated] = useState(false);
    const [tokenMap, setTokenMap] = useState([]);
    const [activeButton, setActiveButton] = useState('0');
-  
+   const [lockId, setLockId] = useState();
+   const [networkId, setNetworkId] = useState();
+   const urlParams = new URL(window.location);
+   const walletAddress = urlParams.pathname.split("/")[2]
    
    const useStyles = makeStyles((theme) => ({
     layout: {
@@ -49,63 +70,61 @@ export default function Donate(){
   }));
   const classes = useStyles();
 
+  const unlockHandler = useCallback(e => {
+    console.log(e.detail)
+    if(e.detail.address){
+      setAddress(e.detail.address);
+      
+    }
+  });
+  
+  useEffect(() => {
+    if(unlocked){
+      clearInterval(intervalId);
+    }
+    if(address && !unlocked){
+      //console.log(lockId,address,networkId)
+      setIntervalId(
+        setInterval( async () => {
+          //console.log(unlocked, lockId, networkId)
+          const contract = await web3.lockContract(lockId, networkId);
+          setUnlocked(await contract.getHasValidKey(address))
+          
+        }, 2000)
+      )
+    }
+    
+  }, [address, unlocked])
+
   useEffect(() => {
     setPaywall(new Paywall(paywallConfig, networkConfigs))
     window.addEventListener("unlockProtocol.status", unlockHandler)
-    
-    return () => {window.removeEventListener("unlockProtocol", unlockHandler)
-  }},[]);
+    window.addEventListener("unlockProtocol.authenticated", unlockHandler)
+    setAddress(false);
+    clearInterval(intervalId);
+    return () => {window.removeEventListener("unlockProtocol.status", unlockHandler)
+    window.removeEventListener("unlockProtocol.authenticated", unlockHandler)
+  }}, [activeButton]);
    
 
-   var paywallConfig = {
-       network: 100, 
-       locks: {
-       },
-       icon: 'https://app.unlock-protocol.com/static/images/svg/default.svg', 
-       callToAction: {
-       default: 'Follow the prompts to donate!',
-       expired: 'Your donation has expired! Donate here again!',
-       pending: 'Your donation is pending.',
-       confirmed: 'Thank you for donating!',
-       noWallet: 'Please download a crypto wallet to donate!',
-       },
-       referrer: "0x6115BB18b17CFC53A8f73202D98221A89501b154"
-   };
+   
    
    const changeNameField = (e) => {setName(e.target.value)}
    const changeMessageField = (e) => {setMessage(e.target.value)}
    
 
-    function donate()  {
-      
-        paywallConfig['network'] = Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "network")[1]
-        paywallConfig['locks'][Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "address")[1]] = {
-          name: "Donate!"
-        }
-        
-        
-        paywall.loadCheckoutModal(paywallConfig)
-        
-    };
+   
 
 
     
 
-    const unlockHandler = useCallback(e => {
-      if(e.detail.state === 'unlocked'){
-        setLocked(e.detail.state)
-        
-      }
-      setAddress(e.currentTarget.localStorage.userInfo)
-      
-    });
+
 
     useEffect(() => {
        async function getTokenMap() {  
           try{
-            var web3 = new Web3Service(providerConfig);
-            const urlParams = new URL(window.location);
-            const walletAddress = urlParams.pathname.split("/")[2]
+            
+           
             const getTokens = await API.get(
             'streamlabs',
             '/getTokenMap?walletAddress='+walletAddress,
@@ -129,12 +148,27 @@ export default function Donate(){
           console.log(e.message); 
         }
       }
-  
+      
       getTokenMap()
         
       
     },[]);
-    
+    function donate()  {
+      var alockId = Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "address")[1]
+      var anetworkId = Object.entries(tokenMap[Number(activeButton)]).find(net => net[0].slice(0,-1) === "network")[1]
+      setNetworkId(anetworkId);
+      setLockId(alockId);
+      paywallConfig['network'] = anetworkId
+      paywallConfig['locks'][alockId] = {
+        name: "Donate!"
+      }
+      
+      
+      paywall.loadCheckoutModal(paywallConfig);
+      
+     // setInterval(
+      //  async () => {console.log(address.account,await web3.getTokenBalance(lockId, address.account, networkId))}, 1000);
+  };
         
       return (
         <div className="App">
@@ -144,14 +178,14 @@ export default function Donate(){
             Unlock and Send!
           </Typography>
               <Grid>
-                  {locked === 'unlocked' ?  
-                    <SendDonation name={name} message={message} address={address} amount={Object.entries(tokenMap[Number(activeButton)]).find(net => net[0] === "price")[1]} />
+                  {unlocked ?  
+                    <SendDonation name={name} message={message} address={walletAddress} amount={Object.entries(tokenMap[Number(activeButton)]).find(net => net[0] === "price")[1]} />
                   :
-                  <Grid container justify="center">
+                  <Grid container justifyContent="center">
                     
                         <TextField name="name" label="Your Username" value={name} onChange={changeNameField} fullWidth/>
                         
-                        <Grid container justify="center" style={{marginTop:20}}>
+                        <Grid container justifyContent="center" style={{marginTop:20}}>
                           {
                             needsAlert ? 
                               <Alert severity="error" style={{marginBottom:10}}>Some prices failed to retrieve, refresh to see the prices!</Alert>
@@ -165,11 +199,12 @@ export default function Donate(){
                          Object.entries(tokenMap[Number(activeButton)]).find(net => net[1] === "superchat") ?
                         <div>
                           <TextField name="message" label="Message" value={message} onChange={changeMessageField} fullWidth/>
-                          <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name === null || message === null ? true : false}>Send Message</Button> 
+                          <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name.length < 2 || name.length > 25 || message.length > 255 || message.length < 1 ? true : false}>Send Message</Button> 
                         </div>
                         :
-                        <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name === null ? true : false}>Send Donation</Button> 
-                        
+                        <div>
+                        <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name.length < 2 || name.length > 25 ? true : false}>Send Donation</Button> 
+                        </div>
                         :
                         <div/>}
                         
@@ -185,3 +220,4 @@ export default function Donate(){
       )
     }
   
+   // https://streamersunleashed.com/donate/0x6115BB18b17CFC53A8f73202D98221A89501b154

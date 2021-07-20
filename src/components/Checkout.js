@@ -76,7 +76,7 @@ export default function Checkout(props) {
   function reducer(state, action){
     switch(action.type){
         case "initialLoad":
-            console.log(action)
+            //console.log(action)
             return{...state, ...action.action}
         case "addToken":
             
@@ -116,7 +116,7 @@ export default function Checkout(props) {
           return{...state}
           
         case "changeTokenValue":
-            console.log(action)
+            //console.log(action)
             const cField = action.action.field;
             const cValue = action.action.value;
             var indexi, indexx;
@@ -161,7 +161,7 @@ export default function Checkout(props) {
   
   async function onLoad() {
     try {
-      if(props){
+      if(props.props){
         const response = await API.post('streamlabs','/profile',{body:{walletAddress: props.props}});
         setCode(response.code)
         if(response.hasCode.Item.tokenMap.length > 0){

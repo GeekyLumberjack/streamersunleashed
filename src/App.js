@@ -10,7 +10,7 @@ function Copyright() {
     return (
       <Typography variant="body2" color="textSecondary" align="center">
         {'Copyright © '}
-        <Link color="inherit" href="https://material-ui.com/">
+        <Link color="inherit" to="/">
           streamersunleashed.com
         </Link>{' '}
         {new Date().getFullYear()}
@@ -23,7 +23,7 @@ function Copyright() {
 function App(){
     return(
     
-    <AppBar position="absolute" color="default" className={{position: 'relative',}}>
+    <AppBar position="absolute" color="default" >
             <Toolbar>
             <Typography variant="h6" color="inherit" noWrap>
                 Streamers Unleashed 

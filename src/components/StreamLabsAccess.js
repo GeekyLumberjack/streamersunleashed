@@ -32,7 +32,7 @@ useEffect(() => {
         else{
           if(urlParams.has('code')){
             const code = await API.post('streamlabs','/streamlabsAccess',{body:{code:urlParams.get("code"),walletAddress:props.props.walletAddress}})
-            console.log(code)
+            //console.log(code)
             setHasCode(code.code)
           } 
           else{
@@ -55,15 +55,15 @@ useEffect(() => {
       {hasCode === false ? 
       <div>
       <Grid>
-        <Typography variant="p" gutterBottom>
+        <Typography variant="body1" gutterBottom>
             This will take you to the streamlabs site to grant access
         </Typography>
       </Grid>
-      <Grid spacing={2}>
-        <Button variant="contained" color="primary" style={{ 'margin-top': 20 }} onClick={()=> window.location.href = uri}>Authorize</Button>
+      <Grid >
+        <Button variant="contained" color="primary" style={{ marginTop: 20 }} onClick={()=> window.location.href = uri}>Authorize</Button>
       </Grid>
       </div> :
-       <div class="check"/> 
+       <div className="check"/> 
   }
     </React.Fragment>
   );

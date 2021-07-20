@@ -47,10 +47,10 @@ export default function ChooseDonationButtons(props) {
   
 
   const clickedButtonHandler = (e) => {
-    console.log(e.target);
+    //console.log(e.target);
     const { name } = e.target;
     props.props.setActiveButton(name);
-    console.log(props.props.activeButton);
+    //console.log(props.props.activeButton);
   };
 
   function getNetworkName(obj){
@@ -66,6 +66,7 @@ export default function ChooseDonationButtons(props) {
   function buttons(list){
     return(list.map((token, index) =>(
         <StyledButton
+          key = {index.toString()}
           name={index.toString()}
           className={props.props.activeButton === index.toString() ? `${classes.activeButton}` : ""}
           onClick={clickedButtonHandler}

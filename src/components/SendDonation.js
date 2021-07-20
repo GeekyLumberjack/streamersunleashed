@@ -9,7 +9,7 @@ import './check.css'
 
 export default function SendDonation(props){
     const [sent,setSent] = useState(null)
-    console.log(props)
+    //console.log(props)
     async function send() {
         var newAmount = props.amount
         if (newAmount === "?"){
@@ -21,12 +21,12 @@ export default function SendDonation(props){
         {body:{
           name: props.name,
           message:props.message,
-          walletAddress:props.address,
+          walletAddress:'{"address":"'+props.address+'"}',
           amount:newAmount,
           currency:'USD',
           
         }})
-        console.log(snd)
+        //console.log(snd)
         setSent(snd.Donation)
        }
 
@@ -52,7 +52,7 @@ export default function SendDonation(props){
                 <Typography variant="h6" gutterBottom>
                     Sent!
                 </Typography>
-                <div class="check"/>
+                <div className="check"/>
                 </div>
             
             :

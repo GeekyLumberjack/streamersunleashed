@@ -1,19 +1,22 @@
 {
   "dependencies": {
+    "@ethersproject/bignumber": "^5.4.0",
     "@ethersproject/providers": "^5.1.2",
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@unlock-protocol/paywall": "^0.1.0",
-    "@unlock-protocol/unlock-js": "^0.17.0",
+    "@unlock-protocol/unlock-js": "^0.19.2",
     "aws-amplify": "^3.3.27",
     "client-oauth2": "^4.3.3",
+    "ethers": "^5.4.1",
     "i": "^0.3.6",
     "npm": "^7.13.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.0.1"
+    "react-scripts": "3.0.1",
+    "web3-react": "^5.0.5"
   },
   "scripts": {
     "start": "react-app-rewired --max_old_space_size=4096 start",
