@@ -8,7 +8,7 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import API from '@aws-amplify/api';
 import { tokenMapConfig } from './networkConfigs'
-
+import { BlackButton } from './BlackButton'
 
 export default function TokenMapForm(props) {
     
@@ -80,7 +80,7 @@ export default function TokenMapForm(props) {
       
             {RenderTokenList(props.props.tokenMap)}
         <Grid>
-            <Button onClick={addToken} variant="contained" color="secondary" style={{ marginTop: 20 }}>Add Lock</Button>
+            <BlackButton onClick={addToken} variant="contained" style={{ marginTop: 20 }}>Add Lock</BlackButton>
             
         </Grid>
       

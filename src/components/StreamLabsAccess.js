@@ -4,6 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ClientOAuth2 from 'client-oauth2';
 import {API} from 'aws-amplify'
+import { BlackButton } from './BlackButton';
 import "./check.css"
 
 
@@ -60,7 +61,7 @@ useEffect(() => {
         </Typography>
       </Grid>
       <Grid >
-        <Button variant="contained" color="secondary" style={{ marginTop: 20 }} onClick={()=> window.location.href = uri}>Authorize</Button>
+        <BlackButton variant="contained" style={{ marginTop: 20 }} onClick={()=> window.location.href = uri}>Authorize</BlackButton>
       </Grid>
       </div> :
        <div className="check"/> 
