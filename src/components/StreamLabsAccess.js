@@ -60,7 +60,7 @@ useEffect(() => {
         </Typography>
       </Grid>
       <Grid >
-        <Button variant="contained" color="primary" style={{ marginTop: 20 }} onClick={()=> window.location.href = uri}>Authorize</Button>
+        <Button variant="contained" color="secondary" style={{ marginTop: 20 }} onClick={()=> window.location.href = uri}>Authorize</Button>
       </Grid>
       </div> :
        <div className="check"/> 

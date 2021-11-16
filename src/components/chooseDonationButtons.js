@@ -33,8 +33,8 @@ const styles = makeStyles(() => ({
     marginRight: "0rem"
   },
   activeButton: {
-    background: "#3fb599",
-    color: "#fff"
+    background: "#c7f3ff",
+    color: "#2a2a2a"
   }
 }));
 
@@ -70,7 +70,7 @@ export default function ChooseDonationButtons(props) {
           name={index.toString()}
           className={props.props.activeButton === index.toString() ? `${classes.activeButton}` : ""}
           onClick={clickedButtonHandler}
-        >{Object.entries(token).find(net => net[0].slice(0,-1) === "action")[1]} {Object.entries(token).find(net => net[0] === "price")[1]} {getNetworkName(token)}</StyledButton>
+        >{Object.entries(token).find(net => net[0].slice(0,-1) === "action")[1]} {Object.entries(token).find(net => net[0] === "fiatPrice")[1]} {getNetworkName(token)}</StyledButton>
         )
         )
     )

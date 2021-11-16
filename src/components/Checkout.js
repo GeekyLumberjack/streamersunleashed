@@ -215,7 +215,11 @@ export default function Checkout(props) {
               {getStepContent(activeStep, props.props, code, state.TokenList, dispatch)}
               <div className={classes.buttons}>
                 {activeStep !== 0 && (
-                  <Button onClick={handleBack} className={classes.button}>
+                  <Button variant="contained" 
+                          onClick={handleBack} 
+                          className={classes.button} 
+                          color='secondary'
+                  >
                     Back
                   </Button>
                 )}
@@ -223,7 +227,7 @@ export default function Checkout(props) {
                 <div/> :
                 <Button
                   variant="contained"
-                  color="primary"
+                  color="secondary"
                   onClick={handleNext}
                   className={classes.button}
                 >

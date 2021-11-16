@@ -31,6 +31,12 @@ export const tokenMapConfig = [
 
 ]
 
+export const convertCoin = [
+  {1:'ethereum'},
+  {100:'xdai'},
+  {137:'matic-network'}
+]
+
 export const providerConfig = {
   1:{
     provider:'https://eth-mainnet.alchemyapi.io/v2/b7Mxclz5hGyHqoeodGLQ17F5Qi97S7xJ'
@@ -45,3 +51,4 @@ export const providerConfig = {
     provider:"https://rpc-mainnet.matic.network"
   }
 }
+

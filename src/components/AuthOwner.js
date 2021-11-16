@@ -98,13 +98,10 @@ const classes = useStyles();
       return (
         <div className="App">
         {locked === "locked"  && (
-          <Paper className={classes.layout}>
+          <Paper className={classes.layout} color='lightBlack'>
               <Grid>     
-                <Button variant="contained" color="primary" onClick={checkout} style={{ cursor: "pointer" }}>
-                  Unlock Streamers Unleashed{" "}
-                  <span aria-label="locked" role="img">
-                    🔒
-                  </span>
+                <Button variant="contained" color="secondary" onClick={checkout} style={{ cursor: "pointer" }} size='large'>
+                  Unlock Streamers Unleashed
                 </Button>  
               </Grid>
           </Paper>

@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState, setState} from "react"
 import './check.css'
 import Grid from '@material-ui/core/Grid';
 import { Button, ButtonBase, TextField } from '@material-ui/core';
+import { withStyles } from "@material-ui/styles";
 import {API} from 'aws-amplify'
 import Paper from '@material-ui/core/Paper';
 import { makeStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
@@ -12,12 +13,13 @@ import Typography from '@material-ui/core/Typography';
 import Alert from '@material-ui/lab/Alert';
 import SendDonation from "./SendDonation";
 import ChooseDonationButtons from './chooseDonationButtons'
-import { networkConfigs, providerConfig } from './networkConfigs'
-import { NetworkCellOutlined } from "@material-ui/icons";
+import { networkConfigs, providerConfig, convertCoin } from './networkConfigs'
+import { BlackButton } from "./BlackButton";
+import CoinGecko from "coingecko-api";
 
 
 
-export default function Donate(){
+export default function Donate(props){
   var paywallConfig = {
     network: 100, 
     locks: {
@@ -121,6 +123,7 @@ export default function Donate(){
 
 
     useEffect(() => {
+       const coinClient = new CoinGecko()
        async function getTokenMap() {  
           try{
             
@@ -132,11 +135,26 @@ export default function Donate(){
             const map =getTokens.Response.Item.tokenMap
             
             for(var i=0; i<map.length; i++){
+              
               try{
-                var getLockPrice = await web3.getLock(Object.entries(map[i]).find(net => net[0].slice(0,-1) === "address")[1],Object.entries(map[i]).find(net => net[0].slice(0,-1) === "network")[1]);
-                map[i]['price'] = getLockPrice.keyPrice;
+                var net = Object.entries(map[i]).find(net => net[0].slice(0,-1) === "network")[1]
+                var getLockPrice = await web3.getLock(Object.entries(map[i]).find(net => net[0].slice(0,-1) === "address")[1],net);
+                map[i]['cryptoPrice'] = getLockPrice['keyPrice'];
+                for(var z=0; z<convertCoin.length; z++){
+                  if(Object.keys(convertCoin[z])[0] === String(net)){ 
+                    var convert = Object.values(convertCoin[z])[0]
+                     
+                  }
+                }
+                console.log(convert)
+                var convertPrice = await coinClient.simple.price({'ids':[convert],'vs_currencies':['usd']})
+                console.log(convertPrice)
+                map[i]['fiatPrice'] = Math.round(convertPrice['data'][convert]['usd'] * map[i]['cryptoPrice'])
+                console.log(map[i]['fiatPrice'])
+                
               }catch{
-                map[i]['price'] = "?"
+                map[i]['cryptoPrice'] = "?"
+                map[i]['fiatPrice'] = "?"
                 setNeedsAlert(true);
               }
               
@@ -169,9 +187,11 @@ export default function Donate(){
      // setInterval(
       //  async () => {console.log(address.account,await web3.getTokenBalance(lockId, address.account, networkId))}, 1000);
   };
-        
+  
+  
+
       return (
-        <div className="App">
+        <div className="App" style={{marginTop:100}}>
           <header className="App-header">
           <Paper className={classes.layout}>
           <Typography variant="h6" gutterBottom>
@@ -179,7 +199,7 @@ export default function Donate(){
           </Typography>
               <Grid>
                   {unlocked ?  
-                    <SendDonation name={name} message={message} address={walletAddress} amount={Object.entries(tokenMap[Number(activeButton)]).find(net => net[0] === "price")[1]} />
+                    <SendDonation name={name} message={message} address={walletAddress} amount={Object.entries(tokenMap[Number(activeButton)]).find(net => net[0] === "fiatPrice")[1]} />
                   :
                   <Grid container justifyContent="center">
                     
@@ -199,11 +219,11 @@ export default function Donate(){
                          Object.entries(tokenMap[Number(activeButton)]).find(net => net[1] === "superchat") ?
                         <div>
                           <TextField name="message" label="Message" value={message} onChange={changeMessageField} fullWidth/>
-                          <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name.length < 2 || name.length > 25 || message.length > 255 || message.length < 1 ? true : false}>Send Message</Button> 
+                          <BlackButton variant="contained" onClick={() => donate()} style={{marginTop:20}} disabled={name.length < 2 || name.length > 25 || message.length > 255 || message.length < 1 ? true : false}>Send Message</BlackButton> 
                         </div>
                         :
                         <div>
-                        <Button variant="contained" color="primary" onClick={() => donate()} style={{marginTop:20}} disabled={name.length < 2 || name.length > 25 ? true : false}>Send Donation</Button> 
+                        <BlackButton variant="contained" onClick={() => donate()} style={{marginTop:20}} disabled={name.length < 2 || name.length > 25 ? true : false}>Send Donation</BlackButton> 
                         </div>
                         :
                         <div/>}
