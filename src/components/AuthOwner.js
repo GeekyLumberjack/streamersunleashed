@@ -13,18 +13,27 @@ export default function AuthOwner(){
    var paywallConfig = {
     network: "100", 
     locks: {
-    '0xac1fceC2e4064CCd83ac8C9B0c9B8d944AB0D246': {
-        name: "One time contribution!"
+    '0xE7575764442aD64F14a209753169617030915227': {
+        name: "Free Streamers Unleashed"
     }
 
     },
+    metadataInputs:[
+      {
+        name:'email',
+        type:'text',
+        required:true,
+        defaultText:'Enter Email Address',
+        public:false
+      }
+    ],
     icon: 'https://app.unlock-protocol.com/static/images/svg/default.svg', 
     callToAction: {
-    default: 'This content is locked. Pay with cryptocurrency to access it!',
-    expired: 'This is what is shown when the user had a key which is now expired',
-    pending: 'This is the message shown when the user sent a transaction to purchase a key which has not be confirmed yet',
-    confirmed: 'This is the message shown when the user has a confirmed key',
-    noWallet: 'This is the message shown when the user does not have a crypto wallet which is required...',
+    default: 'Get Access to Streamers Unleashed!',
+    expired: 'Your Premium Membership has expired, renew for access!',
+    pending: 'This is taking longer than expected. The transaction is still pending.',
+    confirmed: "You're all set! Welcome!",
+    noWallet: 'No wallet was detected...',
     },
     referrer: "0x6115BB18b17CFC53A8f73202D98221A89501b154"
 };
