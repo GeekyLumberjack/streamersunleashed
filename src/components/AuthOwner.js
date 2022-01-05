@@ -13,7 +13,7 @@ export default function AuthOwner(){
    var paywallConfig = {
     network: "100", 
     locks: {
-    '0xE7575764442aD64F14a209753169617030915227': {
+    '0xDF99A9E649Ab0bC485340FA089494BA96468b85F': {
         name: "Free Streamers Unleashed"
     }
 
